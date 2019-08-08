@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 29
@@ -37,4 +37,13 @@ dependencies {
 
     kapt "android.arch.persistence.room:compiler:1.1.1"
     implementation "android.arch.persistence.room:guava:1.1.1"
+
+    def nav_version = '1.0.0-alpha01'
+    implementation "android.arch.navigation:navigation-fragment:$nav_version"
+    implementation "android.arch.navigation:navigation-ui:$nav_version"
+
+
+    implementation 'com.android.support:recyclerview-v7:29.0.1'
+    implementation 'com.android.support:support-annotations:29.1.1'
+    
 }

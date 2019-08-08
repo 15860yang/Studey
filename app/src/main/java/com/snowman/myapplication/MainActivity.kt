@@ -3,20 +3,20 @@ package com.snowman.myapplication
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Path
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.snowman.myapplication.database.DataBaseOperate
-import com.snowman.myapplication.database.User
-import com.snowman.remote.Book
+import com.snowman.myapplication.recyclerview_test.PathAdapter
+import com.snowman.myapplication.recyclerview_test.pathmanager.PathLayoutManager
 import com.snowman.remote.IRemoteManager
 import com.snowman.remote.Stub
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    companion object{
+    companion object {
         private val TAG = "---" + MainActivity::class.java.simpleName
     }
 
@@ -25,20 +25,38 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        DataBaseOperate.init(application)
-
-//        DataBaseOperate.insert(User(mName = "孙悟空",mAge = 21))
-//        DataBaseOperate.insert(User(mName = "猪八戒",mAge = 13))
-//        DataBaseOperate.insert(User(mName = "唐僧"  ,mAge = 33))
-
-        DataBaseOperate.delete(User(mName = "孙悟空", mAge = 21, id = 1))
-
-        val users = DataBaseOperate.getAllUsers()
-        for (u in users) {
-            println(u)
-        }
-
+        doTestPathManager()
     }
+
+    private fun tryPathManager(){
+        val path = Path()
+        path.moveTo(500f,0f)
+        path.rLineTo(0f,2000f)
+        val layoutManager =
+            PathLayoutManager(path, mItemOffset = 250)
+        main_rv.layoutManager = layoutManager
+        val date = initDate(20)
+        val adapter = PathAdapter(this,date)
+        main_rv.adapter = adapter
+    }
+
+    fun doTestPathManager(){
+        val p = Path()
+        p.moveTo(500f,0f)
+        p.rLineTo(0f,2000f)
+        main_auxiliaryView.setPath(p)
+        tryPathManager()
+    }
+
+    private fun initDate(i: Int): ArrayList<String> {
+        val res = ArrayList<String>()
+        for (a in 0 until i){
+            res.add("$a 号")
+        }
+        return res
+    }
+
+//    override fun onSupportNavigateUp() = findNavController(this, R.id.my_nav_host_fragment).navigateUp()
 
     private fun doRemote() {
         println("---version = " + android.os.Build.VERSION.SDK_INT)
@@ -48,16 +66,6 @@ class MainActivity : AppCompatActivity() {
         startService(intent)
 
         bindService(intent, connection, 0)
-
-        mMainAddBook.setOnClickListener {
-            if (operateBook == null) return@setOnClickListener
-            operateBook!!.addBook(Book(1, "222"))
-        }
-
-        mMainGetBooks.setOnClickListener {
-            if (operateBook == null) return@setOnClickListener
-            println("--- bookSize = ${operateBook!!.getBookList()!!.size}")
-        }
     }
 
     val connection = object : ServiceConnection {
