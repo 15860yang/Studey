@@ -8,7 +8,7 @@ android {
     buildToolsVersion "29.0.1"
     defaultConfig {
         applicationId "com.snowman.myapplication"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -37,4 +37,10 @@ dependencies {
 
     kapt "android.arch.persistence.room:compiler:1.1.1"
     implementation "android.arch.persistence.room:guava:1.1.1"
+
+
+    implementation 'com.github.GrenderG:Toasty:1.4.2'
+
+    implementation 'com.github.johnpersano:supertoasts:2.0'
+
 }
