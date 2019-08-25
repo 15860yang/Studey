@@ -3,4 +3,18 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+
+
+    <color name="aaaa">#9910fff1</color>
+    <color name="bbbb">#8812ff21</color>
+    <color name="cccc">#483da1</color>
+
+    <color name="dddd">#99fa4190</color>
+    <color name="eeee">#883c6a11</color>
+    <color name="ffff">#9922fda1</color>
+
+
+
+
 </resources>
