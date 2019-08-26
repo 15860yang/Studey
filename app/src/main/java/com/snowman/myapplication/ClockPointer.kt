@@ -7,7 +7,7 @@ open class ClockPointer(var length: Int, var angle: Int = 0) {
     var endX: Float = 0f
     var endY: Float = 0f
 
-    fun drawSelf(canvas: Canvas?, startX: Float, startY: Float, mPaint: Paint) {
+    open fun drawSelf(canvas: Canvas?, startX: Float, startY: Float, mPaint: Paint) {
         canvas?.drawLine(startX, startY, endX, endY, mPaint)
     }
 

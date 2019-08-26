@@ -1,8 +1,8 @@
 package com.snowman.myapplication
 
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Paint
+import android.graphics.*
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -53,21 +53,6 @@ class ClockView(context: Context, attr: AttributeSet? = null, defStyleAttr: Int 
                 }
             }
         }.start()
-        addPointer(object : ClockPointer(200) {
-            override fun changeAngle(angle: Int) = angle + 20
-        })
-        addPointer(object : ClockPointer(100) {
-            var index = 1
-            override fun changeAngle(angle: Int): Int {
-                return if (index > 10) {
-                    index = 1
-                    angle + 10
-                } else {
-                    index++
-                    angle
-                }
-            }
-        })
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -97,14 +82,51 @@ class ClockView(context: Context, attr: AttributeSet? = null, defStyleAttr: Int 
     }
 
     private fun drawClock(canvas: Canvas?) {
-        //绘制圆心和外面的圆
-        canvas?.drawCircle(mCenterX, mCenterY, 3f, mPaint)
-        mPaint.style = Paint.Style.STROKE
-        canvas?.drawCircle(mCenterX, mCenterY, mRadius - 5, mPaint)
+        /**
+         * 有点问题，覆盖图层规则总是错误
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            canvas?.saveLayer(0f, 0f, (right - left).toFloat(), (bottom - top).toFloat(), mPaint)
+//            mPaint.color = Color.BLUE
+//            canvas?.drawCircle(mCenterX, mCenterY, mRadius, mPaint)
+//            mPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        }
+
+        drawBackGround(canvas, mCenterX, mCenterY, mRadius)
+        //绘制表心
+        drawClockCenter(canvas, mCenterX, mCenterY)
+        //绘制表盘
+        drawClockDial(canvas, mCenterX, mCenterY, mRadius)
         //画指针
         for (pointer in pointerList) {
             pointer.drawSelf(canvas, mCenterX, mCenterY, mPaint)
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            mPaint.xfermode = null
+            canvas?.restore()
+        }
+    }
+
+    open fun drawBackGround(canvas: Canvas?, mCenterX: Float, mCenterY: Float, mRadius: Float) {
+        val bg = BitmapFactory.decodeResource(context.resources, R.mipmap.bgf)
+        val i = mRadius / bg.width / 2
+        val matrix = Matrix()
+        matrix.postScale(i, i)
+        val bitmap = Bitmap.createBitmap(bg, 0, 0, bg.width, bg.height, matrix, true)
+
+        val w = bitmap.width / 2
+        val h = bitmap.height / 2
+
+        canvas?.drawBitmap(bitmap, mCenterX - w, mCenterY - h, mPaint)
+    }
+
+    private fun drawClockCenter(canvas: Canvas?, x: Float, y: Float) {
+        canvas?.drawCircle(x, y, 3f, mPaint)
+    }
+
+    private fun drawClockDial(canvas: Canvas?, x: Float, y: Float, radius: Float) {
+        mPaint.style = Paint.Style.STROKE
+        canvas?.drawCircle(x, y, radius - 5, mPaint)
     }
 
     var i = 1
