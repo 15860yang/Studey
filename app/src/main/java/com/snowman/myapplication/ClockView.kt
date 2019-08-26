@@ -3,12 +3,11 @@ package com.snowman.myapplication
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import java.lang.IllegalArgumentException
 import java.text.DecimalFormat
 import kotlin.math.cos
 import kotlin.math.sin
@@ -26,7 +25,15 @@ class ClockView(context: Context, attr: AttributeSet? = null, defStyleAttr: Int 
     private var mRadius = -1f
     private var mCenterX = 0f
     private var mCenterY = 0f
-    private var mAngle = 300
+
+    var mUpdateInterval = 1000L
+        set(value) {
+            field = if (value < 16) {
+                throw IllegalArgumentException("非法的时间间隔，不能小于Android手机刷新屏幕间隔")
+            } else value
+        }
+
+    private var pointerList = ArrayList<ClockPointer>(3)
 
     private var mNowX = 0f
     private var mNowY = 0f
@@ -34,16 +41,33 @@ class ClockView(context: Context, attr: AttributeSet? = null, defStyleAttr: Int 
 
     init {
         mPaint.color = ContextCompat.getColor(context, R.color.colorAccent)
-        object :Thread(){
+        object : Thread() {
             override fun run() {
-                while (true){
-                    sleep(50)
-                    mAngle += 10
-                    mAngle %= 360
+                while (true) {
+                    sleep(mUpdateInterval)
+                    for (pointer in pointerList) {
+                        pointer.angle = pointer.changeAngle(pointer.angle)
+                        pointer.angle %= 360
+                    }
                     postInvalidate()
                 }
             }
         }.start()
+        addPointer(object : ClockPointer(200) {
+            override fun changeAngle(angle: Int) = angle + 20
+        })
+        addPointer(object : ClockPointer(100) {
+            var index = 1
+            override fun changeAngle(angle: Int): Int {
+                return if (index > 10) {
+                    index = 1
+                    angle + 10
+                } else {
+                    index++
+                    angle
+                }
+            }
+        })
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -64,42 +88,46 @@ class ClockView(context: Context, attr: AttributeSet? = null, defStyleAttr: Int 
 
     override fun onDraw(canvas: Canvas?) {
         getCenterCoordinates()
-        updateNewCoordinates()
+        updateNewCoordinates(pointerList)
         drawClock(canvas)
     }
 
+    fun addPointer(pointer: ClockPointer) {
+        pointerList.add(pointer)
+    }
+
     private fun drawClock(canvas: Canvas?) {
-        //绘制圆心
+        //绘制圆心和外面的圆
         canvas?.drawCircle(mCenterX, mCenterY, 3f, mPaint)
         mPaint.style = Paint.Style.STROKE
         canvas?.drawCircle(mCenterX, mCenterY, mRadius - 5, mPaint)
-
-//        //画线
-        canvas?.drawLine(mCenterX, mCenterY, mNowX, mNowY, mPaint)
+        //画指针
+        for (pointer in pointerList) {
+            pointer.drawSelf(canvas, mCenterX, mCenterY, mPaint)
+        }
     }
 
     var i = 1
-    private fun updateNewCoordinates() {
-        var offsetX = mRadius * mDecimalFormat.format(sin(Math.toRadians(mAngle % 180.0))).toFloat()
-        var offsetY = mRadius * mDecimalFormat.format(cos(Math.toRadians(mAngle % 180.0))).toFloat()
-
-        log("offsetX = $offsetX , offsetY = $offsetY")
-
-        i = if (mAngle / 180 == 1) -1 else 1
-
-        mNowX = mCenterX + offsetX * i
-        mNowY = mCenterY + (offsetY * -1) * i
-
-        log("mNowX = $mNowX , mNowY = $mNowY")
+    private fun updateNewCoordinates(pointerList: ArrayList<ClockPointer>) {
+        for (pointer in pointerList) {
+            log("length = ${pointer.length}")
+            var offsetX =
+                pointer.length * mDecimalFormat.format(sin(Math.toRadians(pointer.angle % 180.0))).toFloat()
+            var offsetY =
+                pointer.length * mDecimalFormat.format(cos(Math.toRadians(pointer.angle % 180.0))).toFloat()
+            log("offsetX = $offsetX , offsetY = $offsetY")
+            i = if (pointer.angle / 180 == 1) -1 else 1
+            pointer.endX = mCenterX + offsetX * i
+            pointer.endY = mCenterY + (offsetY * -1) * i
+            log("pointer.endX = ${pointer.endX} , pointer.endY = ${pointer.endY}")
+        }
     }
 
     private fun getCenterCoordinates() {
         mCenterX = (right - left) / 2f
         mCenterY = (bottom - top) / 2f
-
         mNowX = mCenterX
         mNowY = 0f
-
         log("mCenterX = $mCenterX , mCenterY = $mCenterY")
     }
 }
