@@ -1,11 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="10dp"
         tools:context=".MainActivity">
+
+
+    <Button
+            android:id="@+id/goToLeakActivityBt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GO LEAK Activity"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+            android:id="@+id/showContextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="show Context Name"
+            app:layout_constraintTop_toBottomOf="@id/goToLeakActivityBt" />
+
+    <EditText
+            android:id="@+id/inputEdit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="input"
+            app:layout_constraintTop_toBottomOf="@id/showContextName" />
+
+    <Button
+            android:id="@+id/showKeyBod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="展示软键盘"
+            app:layout_constraintTop_toBottomOf="@id/inputEdit" />
+
+    <Button
+            android:id="@+id/hideKeyBod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="隐藏软键盘"
+            app:layout_constraintTop_toBottomOf="@id/showKeyBod" />
+
+    <Button
+            android:id="@+id/changeInputKeyBod"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="转换editText的聚焦状态"
+            app:layout_constraintTop_toBottomOf="@id/hideKeyBod" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
